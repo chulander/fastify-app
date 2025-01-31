@@ -24,6 +24,8 @@ export default async function routes(fastify: FastifyInstance) {
   fastify.get("/:userId/api-keys", { schema: { params: userIdSchema } }, apiKeyController.getAllApiKeysForUser);
   fastify.get("/:userId/api-keys/:id", { schema: { params: userIdWithApiKeyIdSchema } }, apiKeyController.getApiKeyById);
   fastify.post("/:userId/api-keys", { schema: { params: userIdSchema, body: apiKeysInsertSchema } }, apiKeyController.createApiKeyByUserId);
-  fastify.put("/:userId/api-keys/:id", { schema: { params: userIdWithApiKeyIdSchema, body: apiKeysUpdateSchema } }, apiKeyController.updateApiKey);
+  // makes no sense to allow user to update an api key
+  // let them delete it and create a new one
+  // fastify.put("/:userId/api-keys/:id", { schema: { params: userIdWithApiKeyIdSchema, body: apiKeysUpdateSchema } }, apiKeyController.updateApiKey);
   fastify.delete("/:userId/api-keys/:id", { schema: { params: userIdWithApiKeyIdSchema } }, apiKeyController.deleteApiKey);
 }

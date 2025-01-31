@@ -8,7 +8,7 @@ import {
   apiKeysDeleteSchemaZod,
   userIdSchemaZod,
   apiKeysInsertPayloadSchemaZod,
-  apiKeysUpdatePayloadSchemaZod,
+  // apiKeysUpdatePayloadSchemaZod,
 } from "@utils/validationSchemas"; // ✅ Import the correct validation schemas
 import { decryptText, encryptText } from "@utils/encryption";
 
@@ -90,37 +90,39 @@ export const createApiKeyByUserId = async (req: FastifyRequest<{ Params: { userI
   }
 };
 
+// bad design to let users update api keys
+// let user delete and create a new one
 // ✅ Update API Key
-export const updateApiKey = async (req: FastifyRequest<{ Params: { userId: string; id: string }; Body: any }>, reply: FastifyReply) => {
-  try {
-    // ✅ Validate and extract `userId` and `id`
-    const parsedParams = userIdWithApiKeyIdSchemaZod.parse(req.params); // Validate both userId & id
-    console.log("parsedParams", parsedParams);
-    const parsedBody = apiKeysUpdatePayloadSchemaZod.parse(req.body); // ✅ Validate request body
-    console.log("parsedBody", parsedBody);
+// export const updateApiKey = async (req: FastifyRequest<{ Params: { userId: string; id: string }; Body: any }>, reply: FastifyReply) => {
+//   try {
+//     // ✅ Validate and extract `userId` and `id`
+//     const parsedParams = userIdWithApiKeyIdSchemaZod.parse(req.params); // Validate both userId & id
+//     console.log("parsedParams", parsedParams);
+//     const parsedBody = apiKeysUpdatePayloadSchemaZod.parse(req.body); // ✅ Validate request body
+//     console.log("parsedBody", parsedBody);
 
-    // ✅ Ensure `user_id` is also checked in WHERE condition
-    const updatedApiKey = await db
-      .update(userApiKeys)
-      .set({ ...parsedBody, editedAt: new Date() }) // 🚀 Automatically update `editedAt`
-      .where(
-        and(eq(userApiKeys.id, parsedParams.id), eq(userApiKeys.user_id, parsedParams.userId)) // ✅ Ensure `user_id` matches
-      )
-      .returning();
+//     // ✅ Ensure `user_id` is also checked in WHERE condition
+//     const updatedApiKey = await db
+//       .update(userApiKeys)
+//       .set({ ...parsedBody, editedAt: new Date() }) // 🚀 Automatically update `editedAt`
+//       .where(
+//         and(eq(userApiKeys.id, parsedParams.id), eq(userApiKeys.user_id, parsedParams.userId)) // ✅ Ensure `user_id` matches
+//       )
+//       .returning();
 
-    if (updatedApiKey.length === 0) {
-      return reply.status(404).send({ error: "API Key not found or does not belong to the user" });
-    }
+//     if (updatedApiKey.length === 0) {
+//       return reply.status(404).send({ error: "API Key not found or does not belong to the user" });
+//     }
 
-    return reply.send(updatedApiKey[0]);
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return reply.status(400).send({ error: "Invalid request data", details: error.errors });
-    }
-    console.error("Unexpected error:", error);
-    return reply.status(500).send({ error: "Internal Server Error" });
-  }
-};
+//     return reply.send(updatedApiKey[0]);
+//   } catch (error) {
+//     if (error instanceof ZodError) {
+//       return reply.status(400).send({ error: "Invalid request data", details: error.errors });
+//     }
+//     console.error("Unexpected error:", error);
+//     return reply.status(500).send({ error: "Internal Server Error" });
+//   }
+// };
 
 // ✅ Delete API Key
 export const deleteApiKey = async (req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
