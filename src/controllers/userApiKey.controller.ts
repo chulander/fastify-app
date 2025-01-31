@@ -1,13 +1,16 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { db } from "../db"; // Import the Drizzle database instance
 import { userApiKeys } from "../models/userApiKeys";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { ZodError } from "zod";
 import {
-  apiKeysInsertSchemaZod, // ✅ Use the Zod version
-  apiKeysUpdateSchemaZod, // ✅ Use the Zod version
+  userIdWithApiKeyIdSchemaZod,
+  apiKeysInsertRequestSchemaZod, // ✅ Use the Zod version
+  apiKeysUpdateRequestSchemaZod, // ✅ Use the Zod version
   apiKeysDeleteSchemaZod, // ✅ Use the Zod version
-  userIdSchemaZod, // ✅ Use the Zod version
+  userIdSchemaZod,
+  apiKeysInsertPayloadSchemaZod,
+  apiKeysUpdatePayloadSchemaZod, // ✅ Use the Zod version
 } from "../utils/validationSchemas"; // ✅ Import the correct validation schemas
 
 // ✅ Get All API Keys
@@ -54,10 +57,10 @@ export const getAllApiKeysForUser = async (req: FastifyRequest<{ Params: { userI
 };
 
 // ✅ Create New API Key
-export const createApiKey = async (req: FastifyRequest<{ Params: { userId: string }; Body: any }>, reply: FastifyReply) => {
+export const createApiKeyByUserId = async (req: FastifyRequest<{ Params: { userId: string }; Body: any }>, reply: FastifyReply) => {
   try {
     const parsedUserId = userIdSchemaZod.parse({ userId: req.params.userId }); // ✅ Validate userId
-    const parsedBody = apiKeysInsertSchemaZod.parse({
+    const parsedBody = apiKeysInsertPayloadSchemaZod.parse({
       ...(typeof req.body === "object" ? req.body : {}),
       user_id: parsedUserId.userId, // ✅ Ensure correct user_id assignment
     });
@@ -74,24 +77,31 @@ export const createApiKey = async (req: FastifyRequest<{ Params: { userId: strin
     if (error instanceof ZodError) {
       return reply.status(400).send({ error: "Invalid request data", details: error.errors });
     }
+    console.error("Unexpected error:", error);
     return reply.status(500).send({ error: "Internal Server Error" });
   }
 };
 
 // ✅ Update API Key
-export const updateApiKey = async (req: FastifyRequest<{ Params: { id: string }; Body: any }>, reply: FastifyReply) => {
+export const updateApiKey = async (req: FastifyRequest<{ Params: { userId: string; id: string }; Body: any }>, reply: FastifyReply) => {
   try {
-    const parsedId = apiKeysDeleteSchemaZod.parse({ id: req.params.id }); // ✅ Validate API Key ID
-    const parsedBody = apiKeysUpdateSchemaZod.parse(req.body); // ✅ Validate request body
+    // ✅ Validate and extract `userId` and `id`
+    const parsedParams = userIdWithApiKeyIdSchemaZod.parse(req.params); // Validate both userId & id
+    console.log('parsedParams', parsedParams);
+    const parsedBody = apiKeysUpdatePayloadSchemaZod.parse(req.body); // ✅ Validate request body
+    console.log('parsedBody', parsedBody);
 
+    // ✅ Ensure `user_id` is also checked in WHERE condition
     const updatedApiKey = await db
       .update(userApiKeys)
       .set({ ...parsedBody, editedAt: new Date() }) // 🚀 Automatically update `editedAt`
-      .where(eq(userApiKeys.id, parsedId.id))
+      .where(
+        and(eq(userApiKeys.id, parsedParams.id), eq(userApiKeys.user_id, parsedParams.userId)) // ✅ Ensure `user_id` matches
+      )
       .returning();
 
     if (updatedApiKey.length === 0) {
-      return reply.status(404).send({ error: "API Key not found" });
+      return reply.status(404).send({ error: "API Key not found or does not belong to the user" });
     }
 
     return reply.send(updatedApiKey[0]);

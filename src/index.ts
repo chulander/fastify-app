@@ -5,6 +5,7 @@ dotenv.config();
 
 import { PORT, ENV, ALLOWED_ORIGINS, LOCALHOST_ORIGIN } from "./utils/constants";
 import userRoutes from "./routes/user.routes";
+import apiKeyRoutes from "./routes/apiKey.routes";
 
 const fastify = Fastify({
   logger: true,
@@ -26,6 +27,7 @@ fastify.register(cors, {
 });
 // Register routes
 fastify.register(userRoutes, { prefix: "/api/v1/users" });
+fastify.register(apiKeyRoutes, { prefix: "/api/v1/api-keys" });
 
 // Start the server
 const start = async () => {

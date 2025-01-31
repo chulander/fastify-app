@@ -13,6 +13,8 @@ import {
 
 export default async function routes(fastify: FastifyInstance) {
   // ✅ User Routes
+
+  fastify.get("/", userController.getAllUsers);
   fastify.get("/:id", { schema: { params: usersDeleteSchema } }, userController.getUserById);
   fastify.post("/", { schema: { body: usersInsertSchema } }, userController.createUser);
   fastify.put("/:id", { schema: { params: usersDeleteSchema, body: usersUpdateSchema } }, userController.updateUser);
@@ -21,7 +23,7 @@ export default async function routes(fastify: FastifyInstance) {
   // ✅ User API Key Routes (Scoped Under Users)
   fastify.get("/:userId/api-keys", { schema: { params: userIdSchema } }, apiKeyController.getAllApiKeysForUser);
   fastify.get("/:userId/api-keys/:id", { schema: { params: userIdWithApiKeyIdSchema } }, apiKeyController.getApiKeyById);
-  fastify.post("/:userId/api-keys", { schema: { params: userIdSchema, body: apiKeysInsertSchema } }, apiKeyController.createApiKey);
+  fastify.post("/:userId/api-keys", { schema: { params: userIdSchema, body: apiKeysInsertSchema } }, apiKeyController.createApiKeyByUserId);
   fastify.put("/:userId/api-keys/:id", { schema: { params: userIdWithApiKeyIdSchema, body: apiKeysUpdateSchema } }, apiKeyController.updateApiKey);
   fastify.delete("/:userId/api-keys/:id", { schema: { params: userIdWithApiKeyIdSchema } }, apiKeyController.deleteApiKey);
 }

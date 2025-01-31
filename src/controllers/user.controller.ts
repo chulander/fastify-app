@@ -52,6 +52,14 @@ export const createUser = async (req: FastifyRequest<{ Body: any }>, reply: Fast
     if (error instanceof ZodError) {
       return reply.status(400).send({ error: "Invalid request data", details: error.errors });
     }
+    // ✅ Check if it's a unique constraint violation (duplicate email)
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      error.code === "23505" // ✅ PostgreSQL unique violation code
+    ) {
+      return reply.status(409).send({ error: "Email already exists" });
+    }
     console.error("Unexpected error:", error);
     return reply.status(500).send({ error: "Internal Server Error" });
   }
