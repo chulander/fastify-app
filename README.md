@@ -72,8 +72,9 @@ DATABASE_URL=postgresql://YourUserNameHere:YourPasswordHere@localhost:5432/YourD
 4. Run the database scripts
 
 ```bash
-npm run db:push
 npm run db:generate
+npm run db:migrate
+npm run db:push
 ```
 
 5. Start the server
