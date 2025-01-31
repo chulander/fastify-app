@@ -1,7 +1,6 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
-import dotenv from "dotenv-safe";
-dotenv.config();
+import cookie from "@fastify/cookie";
 
 import { PORT, ENV, ALLOWED_ORIGINS, LOCALHOST_ORIGIN } from "@utils/constants";
 import userRoutes from "@routes/user.routes";
@@ -10,6 +9,11 @@ import authRoutes from "@routes/auth.routes";
 
 const fastify = Fastify({
   logger: true,
+});
+
+fastify.register(cookie, {
+  hook: "onRequest",
+  parseOptions: {},
 });
 
 fastify.register(cors, {
