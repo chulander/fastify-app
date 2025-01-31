@@ -3,9 +3,10 @@ import cors from "@fastify/cors";
 import dotenv from "dotenv-safe";
 dotenv.config();
 
-import { PORT, ENV, ALLOWED_ORIGINS, LOCALHOST_ORIGIN } from "./utils/constants";
-import userRoutes from "./routes/user.routes";
-import apiKeyRoutes from "./routes/apiKey.routes";
+import { PORT, ENV, ALLOWED_ORIGINS, LOCALHOST_ORIGIN } from "@utils/constants";
+import userRoutes from "@routes/user.routes";
+import apiKeyRoutes from "@routes/apiKey.routes";
+import authRoutes from "@routes/auth.routes";
 
 const fastify = Fastify({
   logger: true,
@@ -28,6 +29,7 @@ fastify.register(cors, {
 // Register routes
 fastify.register(userRoutes, { prefix: "/api/v1/users" });
 fastify.register(apiKeyRoutes, { prefix: "/api/v1/api-keys" });
+fastify.register(authRoutes, { prefix: "/api/v1/auth" });
 
 // Start the server
 const start = async () => {

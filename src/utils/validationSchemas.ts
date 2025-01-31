@@ -8,6 +8,12 @@ import { userApiKeys } from "@models/userApiKeys";
 export const usersSelectSchema = createSelectSchema(users);
 export const apiKeysSelectSchema = createSelectSchema(userApiKeys);
 
+// AUTH
+
+// ✅ Users Sign-In Validation (Zod)
+export const authSignInSchemaZod = usersSelectSchema.pick({ email: true, password: true });
+export const authSignInRequestSchema = zodToJsonSchema(authSignInSchemaZod, { name: "authSignInRequestSchema" });
+
 /* ==========================================================================
    ✅ USERS SCHEMAS (Zod + Auto-Generated Fastify-Compatible JSON Schema)
    ========================================================================== */

@@ -9,7 +9,7 @@ import {
   apiKeysUpdateSchema,
   userIdSchema,
   userIdWithApiKeyIdSchema,
-} from "../utils/validationSchemas";
+} from "@utils/validationSchemas";
 
 export default async function routes(fastify: FastifyInstance) {
   // ✅ User Routes
