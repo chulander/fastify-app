@@ -27,12 +27,12 @@ touch .env
    use the template in the **.env.example** file
 
 ```bash
-ALLOWED_ORIGINS=
+ALLOWED_ORIGINS=http://localhost:5173
 PORT=4000
 DATABASE_URL=
 ENCRYPTION_KEY=
-TOKEN_SECRET=
-REFRESH_TOKEN_SECRET=
+TOKEN_SECRET=YOUR-TOKEN-SECRET
+REFRESH_TOKEN_SECRET=YOUR-REFRESH-TOKEN-SECRET
 ```
 
 3. For the encryption key, generate a random 32 character string
