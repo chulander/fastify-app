@@ -15,6 +15,20 @@
       "when": 1738305412400,
       "tag": "0001_black_trauma",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1738309790765,
+      "tag": "0002_perpetual_hellion",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1738311778231,
+      "tag": "0003_nifty_ironclad",
+      "breakpoints": true
     }
   ]
 }

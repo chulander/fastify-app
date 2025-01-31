@@ -1,0 +1,1 @@
+DROP TABLE "users_api_keys" CASCADE;

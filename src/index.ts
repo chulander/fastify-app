@@ -3,13 +3,8 @@ import cors from "@fastify/cors";
 import dotenv from "dotenv-safe";
 dotenv.config();
 
-import exampleRoutes from "./routes/example";
-const env = process.env.NODE_ENV || "development";
-const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
-const allowedOrigins = process.env.ALLOWED_ORIGINS;
-const origins = !allowedOrigins
-  ? []
-  : allowedOrigins?.split(",").map((origin) => origin.trim());
+import { PORT, ENV, ALLOWED_ORIGINS, LOCALHOST_ORIGIN } from "./utils/constants";
+import userRoutes from "./routes/user.routes";
 
 const fastify = Fastify({
   logger: true,
@@ -17,7 +12,7 @@ const fastify = Fastify({
 
 fastify.register(cors, {
   origin: (origin, callback) => {
-    if (!origin || origins.includes(origin)) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
       // no origin may be a postman or server to server cal
       // handle it later
       callback(null, true);
@@ -30,16 +25,15 @@ fastify.register(cors, {
   credentials: true,
 });
 // Register routes
-fastify.register(exampleRoutes);
+fastify.register(userRoutes, { prefix: "/api/v1/users" });
 
 // Start the server
-const localhostOrigin = "0.0.0.0";
 const start = async () => {
   try {
     await fastify.listen({
       port: PORT,
       // TODO: handle env variable later for production
-      host: "0.0.0.0",
+      host: LOCALHOST_ORIGIN,
     });
 
     const serverAddress = fastify.server.address();
@@ -49,14 +43,13 @@ const start = async () => {
         ? serverAddress
         : !serverAddress
         ? ""
-        : serverAddress?.address === "::" ||
-          serverAddress.address === localhostOrigin
+        : serverAddress?.address === "::" || serverAddress.address === LOCALHOST_ORIGIN
         ? "localhost"
         : serverAddress.address;
 
     const origin = `${protocol}://${addy}:${PORT}`;
 
-    if (env === "development") {
+    if (ENV === "development") {
       console.log(`Server is running on ${origin}`);
     } else {
       console.log(`Server is running on ${origin}`);

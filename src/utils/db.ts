@@ -12,4 +12,4 @@ export const createdAt = () =>
     .notNull();
 
 export const editedAt = () =>
-  timestamp("edited_at", { precision: 6, withTimezone: true });
+  timestamp("edited_at", { precision: 6, withTimezone: true }).default(sql`CURRENT_TIMESTAMP`);
