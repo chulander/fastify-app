@@ -1,7 +1,6 @@
-import { uuid, pgTable, varchar, text } from "drizzle-orm/pg-core";
-import { createSelectSchema } from "drizzle-zod";
+import { pgTable, varchar, text } from "drizzle-orm/pg-core";
 
-import { createdAt, editedAt, id } from "../utils/db";
+import { createdAt, editedAt, id } from "@utils/db";
 
 export const users = pgTable("users", {
   id: id(),

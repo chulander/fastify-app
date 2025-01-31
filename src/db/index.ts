@@ -1,9 +1,9 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import dotenv from "dotenv";
-import { DATABASE_URL } from "../utils/constants";
+import { DATABASE_URL } from "@utils/constants";
 
-import * as userTables from "../models/users";
+import * as userTables from "@models/users";
 
 dotenv.config();
 

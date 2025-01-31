@@ -1,17 +1,15 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { db } from "../db"; // Import the Drizzle database instance
-import { userApiKeys } from "../models/userApiKeys";
 import { eq, and } from "drizzle-orm";
 import { ZodError } from "zod";
+import { db } from "@db";
+import { userApiKeys } from "@models/userApiKeys";
 import {
   userIdWithApiKeyIdSchemaZod,
-  apiKeysInsertRequestSchemaZod, // ✅ Use the Zod version
-  apiKeysUpdateRequestSchemaZod, // ✅ Use the Zod version
-  apiKeysDeleteSchemaZod, // ✅ Use the Zod version
+  apiKeysDeleteSchemaZod,
   userIdSchemaZod,
   apiKeysInsertPayloadSchemaZod,
-  apiKeysUpdatePayloadSchemaZod, // ✅ Use the Zod version
-} from "../utils/validationSchemas"; // ✅ Import the correct validation schemas
+  apiKeysUpdatePayloadSchemaZod,
+} from "@utils/validationSchemas"; // ✅ Import the correct validation schemas
 
 // ✅ Get All API Keys
 export const getAllApiKeys = async (req: FastifyRequest, reply: FastifyReply) => {
@@ -87,9 +85,9 @@ export const updateApiKey = async (req: FastifyRequest<{ Params: { userId: strin
   try {
     // ✅ Validate and extract `userId` and `id`
     const parsedParams = userIdWithApiKeyIdSchemaZod.parse(req.params); // Validate both userId & id
-    console.log('parsedParams', parsedParams);
+    console.log("parsedParams", parsedParams);
     const parsedBody = apiKeysUpdatePayloadSchemaZod.parse(req.body); // ✅ Validate request body
-    console.log('parsedBody', parsedBody);
+    console.log("parsedBody", parsedBody);
 
     // ✅ Ensure `user_id` is also checked in WHERE condition
     const updatedApiKey = await db

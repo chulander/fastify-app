@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
-import * as userController from "../controllers/user.controller";
-import * as apiKeyController from "../controllers/userApiKey.controller";
+import * as userController from "@controllers/user.controller";
+import * as apiKeyController from "@controllers/userApiKey.controller";
 import {
   usersInsertSchema,
   usersUpdateSchema,

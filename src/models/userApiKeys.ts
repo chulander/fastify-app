@@ -1,7 +1,6 @@
 import { uuid, pgTable, varchar, text } from "drizzle-orm/pg-core";
-import { createSelectSchema } from "drizzle-zod";
 
-import { createdAt, editedAt, id } from "../utils/db";
+import { createdAt, editedAt, id } from "@utils/db";
 import { users } from "./users";
 
 export const userApiKeys = pgTable("user_api_keys", {

@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
-import { users } from "../models/users";
-import { userApiKeys } from "../models/userApiKeys";
 import { zodToJsonSchema } from "zod-to-json-schema"; // ✅ Convert Zod to JSON Schema
+import { users } from "@models/users";
+import { userApiKeys } from "@models/userApiKeys";
 
 // ✅ Generate Zod schemas from Drizzle models
 export const usersSelectSchema = createSelectSchema(users);

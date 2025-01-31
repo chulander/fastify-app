@@ -1,13 +1,13 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { db } from "../db"; // Import the Drizzle database instance
-import { users } from "../models/users";
+import { db } from "@db"; // Import the Drizzle database instance
+import { users } from "@models/users";
 import { eq } from "drizzle-orm";
 import { ZodError } from "zod";
 import {
   usersInsertSchemaZod, // ✅ Use Zod schema for parsing
   usersUpdateSchemaZod, // ✅ Use Zod schema for parsing
   usersDeleteSchemaZod, // ✅ Use Zod schema for parsing
-} from "../utils/validationSchemas"; // ✅ Import the correct validation schemas
+} from "@utils/validationSchemas"; // ✅ Import the correct validation schemas
 
 // ✅ Get All Users
 export const getAllUsers = async (req: FastifyRequest, reply: FastifyReply) => {
@@ -104,6 +104,17 @@ export const deleteUser = async (req: FastifyRequest<{ Params: { id: string } }>
 
     return reply.send({ message: "User deleted successfully", user: deletedUser[0] });
   } catch (error) {
-    return reply.status(400).send({ error: "Invalid request" });
+    if (error instanceof ZodError) {
+      return reply.status(400).send({ error: "Invalid request data", details: error.errors });
+    }
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      error.code === "23503" // ✅ PostgreSQL unique violation code
+    ) {
+      return reply.status(409).send({ error: "Cannot delete user without deleting api keys" });
+    }
+    console.log("unexpected error", error);
+    return reply.status(500).send({ error: "Internal Server Error" });
   }
 };
