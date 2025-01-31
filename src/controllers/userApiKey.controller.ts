@@ -10,6 +10,7 @@ import {
   apiKeysInsertPayloadSchemaZod,
   apiKeysUpdatePayloadSchemaZod,
 } from "@utils/validationSchemas"; // ✅ Import the correct validation schemas
+import { decryptText, encryptText } from "@utils/encryption";
 
 // ✅ Get All API Keys
 export const getAllApiKeys = async (req: FastifyRequest, reply: FastifyReply) => {
@@ -22,17 +23,23 @@ export const getAllApiKeys = async (req: FastifyRequest, reply: FastifyReply) =>
 };
 
 // ✅ Get API Key by ID
-export const getApiKeyById = async (req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+export const getApiKeyById = async (req: FastifyRequest<{ Params: { id: string; userId: string } }>, reply: FastifyReply) => {
   try {
-    const parsedId = apiKeysDeleteSchemaZod.parse({ id: req.params.id }); // ✅ Validate API Key ID
+    // ✅ Validate and extract `userId` and `id`
+    const parsedParams = userIdWithApiKeyIdSchemaZod.parse(req.params); // Validate both userId & id
 
-    const result = await db.select().from(userApiKeys).where(eq(userApiKeys.id, parsedId.id));
+    const result = await db
+      .select()
+      .from(userApiKeys)
+      .where(and(eq(userApiKeys.id, parsedParams.id), eq(userApiKeys.user_id, parsedParams.userId)));
 
     if (result.length === 0) {
       return reply.status(404).send({ error: "API Key not found" });
     }
+    // ✅ Decrypt API key before sending response
+    const decryptedKey = decryptText(result[0].key);
 
-    return reply.send(result[0]);
+    return reply.send({ ...result[0], key: decryptedKey });
   } catch (error) {
     return reply.status(400).send({ error: "Invalid request", details: error });
   }
@@ -62,6 +69,9 @@ export const createApiKeyByUserId = async (req: FastifyRequest<{ Params: { userI
       ...(typeof req.body === "object" ? req.body : {}),
       user_id: parsedUserId.userId, // ✅ Ensure correct user_id assignment
     });
+    // ✅ Encrypt API key before storing it
+    const encryptedKey = encryptText(parsedBody.key);
+    parsedBody.key = encryptedKey;
 
     // TODO: look into the proper type instead of type casting
     // ✅ Explicitly cast parsedBody to Drizzle insert type

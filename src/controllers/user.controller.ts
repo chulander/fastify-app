@@ -8,6 +8,7 @@ import {
   usersUpdateSchemaZod, // ✅ Use Zod schema for parsing
   usersDeleteSchemaZod, // ✅ Use Zod schema for parsing
 } from "@utils/validationSchemas"; // ✅ Import the correct validation schemas
+import { hashPassword } from "@utils/hash";
 
 // ✅ Get All Users
 export const getAllUsers = async (req: FastifyRequest, reply: FastifyReply) => {
@@ -40,12 +41,17 @@ export const getUserById = async (req: FastifyRequest<{ Params: { id: string } }
 export const createUser = async (req: FastifyRequest<{ Body: any }>, reply: FastifyReply) => {
   try {
     const parsedBody = usersInsertSchemaZod.parse(req.body); // ✅ Validate request body with Zod
+    // ✅ Hash password before storing in DB
+    const hashedPassword = await hashPassword(parsedBody.password);
 
     // TODO: look into the proper type instead of type casting
     // ✅ Explicitly cast parsedBody to Drizzle insert type
     const [newUser] = await db
       .insert(users)
-      .values(parsedBody as unknown as typeof users.$inferInsert)
+      .values({
+        ...(parsedBody as unknown as typeof users.$inferInsert),
+        password: hashedPassword,
+      })
       .returning();
     return reply.status(201).send(newUser);
   } catch (error) {
