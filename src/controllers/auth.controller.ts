@@ -62,8 +62,6 @@ export const signInUser = async (req: FastifyRequest<{ Body: { email: string; pa
         idToken,
         userId: userResults[0].id,
       });
-
-    // return reply.send({ message: "Login successful", userId: user[0].id });
   } catch (error) {
     return reply.status(500).send({ error: "Internal Server Error" });
   }

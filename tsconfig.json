@@ -14,6 +14,7 @@
     "paths": {
       "@utils/*": ["utils/*"],
       "@models/*": ["models/*"],
+      "@middlewares/*": ["middlewares/*"],
       "@controllers/*": ["controllers/*"],
       "@routes/*": ["routes/*"],
       "@db": ["db"]
